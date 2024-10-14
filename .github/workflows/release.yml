@@ -1,0 +1,82 @@
+name: Build and Release DEB Package
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - "v*" # Trigger on version tag pushes like v1.0.0
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Go
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23" # Change to your Go version
+
+      # Step 3: Install FPM to package as .deb
+      - name: Install FPM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby ruby-dev build-essential
+          sudo gem install --no-document fpm
+
+      # Step 4: Build the odaserver binary
+      - name: Build odaserver binary
+        run: |
+          go generate . > commit.txt
+          CGO_ENABLED=0 GOOS=linux go build -a -o odas .
+
+      # Step 6: Package the odaserver binary into a .deb file
+      - name: Package odaserver.deb file
+        run: |
+          fpm -s dir -t deb -n odaserver -v ${{ github.ref_name || 'manual-build' }} \
+          --description "ODA Server Side Application" \
+          --url "https://github.com/${{ github.repository }}" \
+          --license "GPL3" \
+          --maintainer "ppreeper@gmail.com" \
+          --prefix /usr/local/bin odas
+
+      # Step 8: Upload the .deb as an artifact
+      - name: Upload odaserver artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: odaserver-deb
+          path: odaserver_*.deb
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Download built .deb artifact
+      - name: Download odaserver artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: odaserver-deb
+          path: ./dist
+
+      # Step 3: Create a release and upload .deb artifact
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ./dist/odaserver_*.deb
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name || 'manual-release' }}
+          name: "Release ${{ github.ref_name || 'Manual Release' }}"
+          body: "Release notes for ${{ github.ref_name || 'manual' }}"
+          draft: false
+          prerelease: false
