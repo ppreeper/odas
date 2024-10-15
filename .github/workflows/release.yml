@@ -37,7 +37,7 @@ jobs:
           go generate . > commit.txt
           CGO_ENABLED=0 GOOS=linux go build -a -o odas .
 
-      # Step 6: Package the odaserver binary into a .deb file
+      # Step 5: Package the odaserver binary into a .deb file
       - name: Package odaserver.deb file
         run: |
           fpm -s dir -t deb -n odaserver -v ${{ github.ref_name || 'manual-build' }} \
@@ -47,7 +47,7 @@ jobs:
           --maintainer "ppreeper@gmail.com" \
           --prefix /usr/local/bin odas
 
-      # Step 8: Upload the .deb as an artifact
+      # Step 6: Upload the .deb as an artifact
       - name: Upload odaserver artifact
         uses: actions/upload-artifact@v4
         with:
