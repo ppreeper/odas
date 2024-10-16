@@ -1,4 +1,4 @@
-package server
+package internal
 
 import (
 	"fmt"
@@ -72,13 +72,13 @@ func AdminPassword() error {
 	huh.NewInput().
 		Title("Please enter  the admin password:").
 		Prompt(">").
-		Password(true).
+		EchoMode(huh.EchoModePassword).
 		Value(&password1).
 		Run()
 	huh.NewInput().
 		Title("Please verify the admin password:").
 		Prompt(">").
-		Password(true).
+		EchoMode(huh.EchoModePassword).
 		Value(&password2).
 		Run()
 	if password1 == "" {

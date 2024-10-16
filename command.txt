@@ -1,0 +1,34 @@
+NAME:
+   odas - Odoo Server Administration Tool
+
+USAGE:
+   odas [global options] command [command options]
+
+VERSION:
+   20241014-207b581 ()
+
+COMMANDS:
+   help, h  Shows a list of commands or help for one command
+   admin:
+     caddy  update caddyfile
+     hosts  update hosts file
+   app management:
+     install  Install module(s)
+     upgrade  Upgrade module(s)
+   backup:
+     backup   Backup database filestore and addons
+     restore  Restore database and filestore or addons
+     trim     Trim database backups
+     trimall  Trim all database backups
+   control:
+     start    Start the instance
+     stop     Stop the instance
+     restart  Restart the instance
+   general:
+     logs  Follow the logs
+   user management:
+     admin  Admin user management
+
+GLOBAL OPTIONS:
+   --help, -h     show help
+   --version, -v  print the version

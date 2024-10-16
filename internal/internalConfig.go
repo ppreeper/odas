@@ -1,10 +1,10 @@
-package server
+package internal
 
 import (
 	"fmt"
+	"html/template"
 	"os"
 	"os/exec"
-	"text/template"
 
 	"github.com/ppreeper/str"
 )

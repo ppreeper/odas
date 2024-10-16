@@ -1,4 +1,4 @@
-package server
+package internal
 
 func (db *Database) RemoveEnterpriseCode() error {
 	// -- remove the enterprise code, report.url and web.base.url

@@ -1,4 +1,4 @@
-package server
+package internal
 
 import (
 	"fmt"
@@ -323,7 +323,7 @@ func Trim(limit int, all bool) error {
 	bkpFiles := make(map[string][]string)
 	for _, k := range backups {
 		fname := strings.Split(k, "__")
-		dname := strings.TrimRight(fname[1], ".tar.zst")
+		dname := strings.TrimSuffix(fname[1], ".tar.zst")
 		curFiles := bkpFiles[dname]
 		bkpFiles[dname] = append(curFiles, k)
 	}
