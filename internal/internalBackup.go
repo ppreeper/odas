@@ -25,10 +25,21 @@ func AdminBackup() error {
 	return nil
 }
 
+func getAddons(addons_path string) []string {
+	var addons []string
+	addons_list := strings.Split(addons_path, ",")[1:]
+	for _, addon := range addons_list {
+		if !existsIn(OdooRepos, filepath.Base(addon)) {
+			addons = append(addons, addon)
+		}
+	}
+	return addons
+}
+
 func dumpAddonsTar(bkp_prefix string) error {
-	db_name := GetOdooConf("", "db_name")
-	addons_path := GetOdooConf("", "addons_path")
-	addons := strings.Split(addons_path, ",")[2:]
+	db_name := GetOdooConf("db_name")
+	addons_path := GetOdooConf("addons_path")
+	addons := getAddons(addons_path)
 	for _, addon := range addons {
 		folder := strings.Replace(addon, "/opt/odoo/", "", 1)
 		dirlist, _ := os.ReadDir(addon)
@@ -51,12 +62,12 @@ func dumpAddonsTar(bkp_prefix string) error {
 }
 
 func dumpDBTar(bkp_prefix string) error {
-	db_host := GetOdooConf("", "db_host")
-	db_port, _ := strconv.Atoi(GetOdooConf("", "db_port"))
-	db_name := GetOdooConf("", "db_name")
-	db_user := GetOdooConf("", "db_user")
-	db_password := GetOdooConf("", "db_password")
-	data_dir := GetOdooConf("", "data_dir")
+	db_host := GetOdooConf("db_host")
+	db_port, _ := strconv.Atoi(GetOdooConf("db_port"))
+	db_name := GetOdooConf("db_name")
+	db_user := GetOdooConf("db_user")
+	db_password := GetOdooConf("db_password")
+	data_dir := GetOdooConf("data_dir")
 	bkp_file := fmt.Sprintf("%s__%s.tar.zst", bkp_prefix, db_name)
 	dump_dir := filepath.Join("/opt/odoo/backups", fmt.Sprintf("%s__%s", bkp_prefix, db_name))
 	file_path := filepath.Join("/opt/odoo/backups", bkp_file)
@@ -115,10 +126,9 @@ func dumpDBTar(bkp_prefix string) error {
 
 // AdminRestore Restore from backup file
 func AdminRestore(any, move, full bool) error {
-	fmt.Println("AdminRestore", "any:", any, "move:", move, "full:", full)
 	var backups []string
 	var addons []string
-	db_name := GetOdooConf("", "db_name")
+	db_name := GetOdooConf("db_name")
 
 	if any {
 		backups, addons = GetOdooBackups("")
@@ -208,12 +218,12 @@ func restoreDBTar(backupFile string, moveDB bool, neutralize bool) error {
 	cwd := filepath.Join("/", "opt", "odoo")
 	source := filepath.Join(cwd, "backups", backupFile)
 
-	dbname := GetOdooConf(cwd, "db_name")
-	dbhost := GetOdooConf(cwd, "db_host")
-	dbport := GetOdooConf(cwd, "db_port")
-	dbuser := GetOdooConf(cwd, "db_user")
-	dbpassword := GetOdooConf(cwd, "db_password")
-	dbtemplate := GetOdooConf(cwd, "db_template")
+	dbname := GetOdooConf("db_name")
+	dbhost := GetOdooConf("db_host")
+	dbport := GetOdooConf("db_port")
+	dbuser := GetOdooConf("db_user")
+	dbpassword := GetOdooConf("db_password")
+	dbtemplate := GetOdooConf("db_template")
 	port, _ := strconv.Atoi(dbport)
 
 	odb := OdooDB{
@@ -314,7 +324,7 @@ func restoreDBTar(backupFile string, moveDB bool, neutralize bool) error {
 
 // Trim database backups
 func Trim(limit int, all bool) error {
-	db_name := GetOdooConf("", "db_name")
+	db_name := GetOdooConf("db_name")
 
 	// # Get all backup files
 	backups, addons := GetOdooBackups("")

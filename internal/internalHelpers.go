@@ -8,9 +8,34 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/charmbracelet/huh"
 )
 
-func GetOdooConf(cwd, key string) string {
+func GetOSVersion() string {
+	osRelease, err := os.Open("/etc/os-release")
+	if err != nil {
+		fmt.Println("Error loading os-release file", err)
+		return ""
+	}
+	defer func() {
+		if err := osRelease.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	scanner := bufio.NewScanner(osRelease)
+	for scanner.Scan() {
+		line := scanner.Text()
+		re := regexp.MustCompile(`^VERSION_ID="(.+)"$`)
+		if re.MatchString(line) {
+			match := re.FindStringSubmatch(line)
+			return match[1]
+		}
+	}
+	return ""
+}
+
+func GetOdooConf(key string) string {
 	odooconf := filepath.Join("/", "opt", "odoo", "conf", "odoo.conf")
 	c, err := os.Open(odooconf)
 	if err != nil {
@@ -59,6 +84,25 @@ func GetOdooBackups(project string) (backups, addons []string) {
 		addons = selectOnly(addons, project)
 	}
 	return
+}
+
+func AreYouSure(prompt string) bool {
+	var confirm1, confirm2 bool
+	huh.NewConfirm().
+		Title(fmt.Sprintf("Are you sure you want to %s?", prompt)).
+		Value(&confirm1).
+		Run()
+	if !confirm1 {
+		return false
+	}
+	huh.NewConfirm().
+		Title(fmt.Sprintf("Are you really sure you want to %s?", prompt)).
+		Value(&confirm2).
+		Run()
+	if !confirm1 || !confirm2 {
+		return false
+	}
+	return true
 }
 
 func RemoveContents(dir string) error {

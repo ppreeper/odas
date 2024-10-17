@@ -22,9 +22,10 @@ import (
 
 // adminCmd represents the admin command
 var repoCmd = &cobra.Command{
-	Use:   "repo",
-	Short: "odoo repository management",
-	Long:  `odoo repository management`,
+	Use:     "repo",
+	Short:   "odoo repository management",
+	Long:    `odoo repository management`,
+	GroupID: "repo",
 }
 
 func init() {

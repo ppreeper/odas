@@ -17,6 +17,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package internal
 
 import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +30,20 @@ var repoUpdateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "odoo repository update",
 	Long:  `odoo repository update`,
+	Run: func(cmd *cobra.Command, args []string) {
+		repoDir := filepath.Join("/", "opt", "odoo")
+		for _, repo := range OdooRepos {
+			fmt.Fprintln(os.Stderr, "Updating", repo)
+			dest := filepath.Join(repoDir, repo)
+
+			pull := exec.Command("git", "pull", "--rebase")
+			pull.Dir = dest
+			if err := pull.Run(); err != nil {
+				fmt.Fprintf(os.Stderr, "git pull on %s %v", repo, err)
+				return
+			}
+		}
+	},
 }
 
 func init() {

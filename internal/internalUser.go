@@ -29,12 +29,12 @@ func AdminUsername() error {
 		return fmt.Errorf("usernames entered do not match")
 	}
 
-	dbhost := GetOdooConf("", "db_host")
-	dbname := GetOdooConf("", "db_name")
-	dbuser := GetOdooConf("", "db_user")
-	dbpassword := GetOdooConf("", "db_password")
+	dbhost := GetOdooConf("db_host")
+	dbname := GetOdooConf("db_name")
+	dbuser := GetOdooConf("db_user")
+	dbpassword := GetOdooConf("db_password")
 
-	dbport, err := strconv.Atoi(GetOdooConf("", "db_port"))
+	dbport, err := strconv.Atoi(GetOdooConf("db_port"))
 	if err != nil {
 		return fmt.Errorf("error getting port %w", err)
 	}
@@ -98,12 +98,12 @@ func AdminPassword() error {
 		return fmt.Errorf("password change cancelled")
 	}
 
-	dbhost := GetOdooConf("", "db_host")
-	dbname := GetOdooConf("", "db_name")
-	dbuser := GetOdooConf("", "db_user")
-	dbpassword := GetOdooConf("", "db_password")
+	dbhost := GetOdooConf("db_host")
+	dbname := GetOdooConf("db_name")
+	dbuser := GetOdooConf("db_user")
+	dbpassword := GetOdooConf("db_password")
 
-	dbport, err := strconv.Atoi(GetOdooConf("", "db_port"))
+	dbport, err := strconv.Atoi(GetOdooConf("db_port"))
 	if err != nil {
 		return fmt.Errorf("error getting port %w", err)
 	}

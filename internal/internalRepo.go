@@ -3,11 +3,13 @@ package internal
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/huh"
 	git "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -94,4 +96,55 @@ func RepoShortCodes(repo string) ([]string, error) {
 		shortRefs = append(shortRefs, strconv.FormatFloat(ref, 'f', 1, 64))
 	}
 	return shortRefs, nil
+}
+
+func cloneOdooRepos() {
+	var version string
+	var create bool
+
+	versions := getGitVersions("odoo")
+	versionOptions := []huh.Option[string]{}
+	for _, version := range versions {
+		versionOptions = append(versionOptions, huh.NewOption(version, version))
+	}
+
+	if len(versionOptions) == 0 {
+		fmt.Fprintln(os.Stderr, "no more branches to clone")
+		return
+	}
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Available Odoo Branches").
+				Options(versionOptions...).
+				Value(&version),
+
+			huh.NewConfirm().
+				Title("Clone Branch?").
+				Value(&create),
+		),
+	)
+	if err := form.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "odoo version form error %v", err)
+		return
+	}
+
+	if !create {
+		return
+	}
+
+	repoDir := filepath.Join("/", "opt", "odoo")
+
+	for _, repo := range OdooRepos {
+		dest := filepath.Join(repoDir, repo)
+
+		fmt.Println("git", "clone", "https://github.com/odoo/"+repo, dest)
+
+		cloner := exec.Command("git", "clone", "https://github.com/odoo/"+repo, dest)
+		if err := cloner.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "git clone %s %v", repo, err)
+			return
+		}
+	}
 }

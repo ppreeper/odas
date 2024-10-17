@@ -18,6 +18,8 @@ package internal
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -29,7 +31,21 @@ var psqlCmd = &cobra.Command{
 	Long:    `Access the instance database`,
 	GroupID: "database",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("psql")
+		dbHost := GetOdooConf("db_host")
+		dbPort := GetOdooConf("db_port")
+		dbName := GetOdooConf("db_name")
+		dbUser := GetOdooConf("db_user")
+		dbPassword := GetOdooConf("db_password")
+
+		pgCmd := exec.Command("psql", "-h", dbHost, "-p", dbPort, "-d", dbName, "-U", dbUser)
+		pgCmd.Env = append(os.Environ(), fmt.Sprintf("PGPASSWORD=%s", dbPassword))
+		pgCmd.Stdin = os.Stdin
+		pgCmd.Stdout = os.Stdout
+		pgCmd.Stderr = os.Stderr
+		if err := pgCmd.Run(); err != nil {
+			fmt.Fprintln(os.Stderr, "failed to run psql %w", err)
+			return
+		}
 	},
 }
 

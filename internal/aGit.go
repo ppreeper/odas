@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os/exec"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -46,4 +49,22 @@ func gittag() string {
 	dateString := now.Format("20060102")
 
 	return fmt.Sprintf("%s (%s-%s)", t, dateString, hashCommit.Hash().String()[:7])
+}
+
+func getGitVersions(repo string) []string {
+	pattern := regexp.MustCompile(`/[0-9][0-9].[0-9]$`)
+	gitout, err := exec.Command("git", "ls-remote", "https://github.com/odoo/"+repo).Output()
+	cobra.CheckErr(err)
+	odooVersions := []string{}
+	gitlines := strings.Split(string(gitout), "\n")
+	for _, line := range gitlines {
+		if pattern.MatchString(line) {
+			fields := strings.Split(line, "\t")
+			if len(fields) == 2 {
+				vers := strings.TrimLeft(fields[1], "refs/heads/")
+				odooVersions = append(odooVersions, vers)
+			}
+		}
+	}
+	return odooVersions[len(odooVersions)-4:]
 }

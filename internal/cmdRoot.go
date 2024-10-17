@@ -43,9 +43,10 @@ func init() {
 	rootCmd.AddGroup(
 		&cobra.Group{ID: "app", Title: "App Management"},
 		&cobra.Group{ID: "backup", Title: "Backup Management"},
-		&cobra.Group{ID: "config", Title: "Config Commands"},
+		&cobra.Group{ID: "config", Title: "Config Commands (requries sudo)"},
 		&cobra.Group{ID: "database", Title: "Database Management"},
 		&cobra.Group{ID: "instance", Title: "Instance Management"},
+		&cobra.Group{ID: "repo", Title: "Repository Management"},
 		&cobra.Group{ID: "user", Title: "Admin User Management"},
 	)
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
