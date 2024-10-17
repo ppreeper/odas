@@ -17,10 +17,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package internal
 
 import (
+	_ "embed"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed commit.txt
+var Commit string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -39,7 +43,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Version = gittag()
+	rootCmd.Version = Commit
 	rootCmd.AddGroup(
 		&cobra.Group{ID: "app", Title: "App Management"},
 		&cobra.Group{ID: "backup", Title: "Backup Management"},

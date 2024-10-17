@@ -103,6 +103,7 @@ func cloneOdooRepos() {
 	var create bool
 
 	versions := getGitVersions("odoo")
+	// versions := OdooVersions
 	versionOptions := []huh.Option[string]{}
 	for _, version := range versions {
 		versionOptions = append(versionOptions, huh.NewOption(version, version))

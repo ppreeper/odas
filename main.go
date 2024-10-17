@@ -20,6 +20,8 @@ import (
 	"github.com/ppreeper/odas/internal"
 )
 
+//go:generate sh -c "printf '%s (%s)' $(git tag -l | sort -V | tail -1) $(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+
 func main() {
 	internal.Execute()
 }
