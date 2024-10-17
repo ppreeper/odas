@@ -132,6 +132,8 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/ppreeper/odoorpc v0.0.0-20240619222409-d2ceabd3f081 h1:AgAYpKahwT2MG9meGKKHds1m+p/W2xxjiS8qBqSD5zc=
+github.com/ppreeper/odoorpc v0.0.0-20240619222409-d2ceabd3f081/go.mod h1:gjxdhwQgGxYLhUCf5/VH2/sqNnDeqTf4ng6k5eidCEU=
 github.com/ppreeper/passhash v0.0.0-20240425043245-10c159e69543 h1:lHplaD70bWIoT/TL/Y/F27TCk4jJrWe1XlPb6OpGIIA=
 github.com/ppreeper/passhash v0.0.0-20240425043245-10c159e69543/go.mod h1:Of2qrK3T8r1ZOl5ubDBCJfyiV3u0bJXzme71tJrcKms=
 github.com/ppreeper/str v0.0.0-20240129034638-e87440b77a20 h1:jD0swegKL1gJmcOLb8VUvfoWlJaZd8gUWQsCYLNHI/c=

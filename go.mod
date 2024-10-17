@@ -7,6 +7,7 @@ require (
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/jmoiron/sqlx v1.4.0
+	github.com/ppreeper/odoorpc v0.0.0-20240619222409-d2ceabd3f081
 	github.com/ppreeper/passhash v0.0.0-20240425043245-10c159e69543
 	github.com/ppreeper/str v0.0.0-20240129034638-e87440b77a20
 	github.com/spf13/cobra v1.8.1
