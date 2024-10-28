@@ -27,7 +27,7 @@ func (o *ODA) OdooStart() error {
 }
 
 func (o *ODA) OdooStop() error {
-	return odooService("start")
+	return odooService("stop")
 }
 
 func (o *ODA) OdooRestart() error {

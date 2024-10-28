@@ -88,7 +88,13 @@ func (o *OdooDB) CreateDatabase() error {
 
 func (o *OdooDB) RestoreDatabase(source string) error {
 	tarpgCmd := exec.Command("tar", "Oaxf", source, "./dump.sql")
-	pgCmd := exec.Command("psql", "-h", o.Hostname, "-U", o.Username, "--dbname", o.Database, "-q")
+	pgCmd := exec.Command("psql",
+		"-h", o.Hostname,
+		"-p", o.Port,
+		"-U", o.Username,
+		"--dbname", o.Database,
+		"-q",
+	)
 	pgCmd.Env = append(pgCmd.Env, "PGPASSWORD="+o.Password)
 
 	r, w := io.Pipe()
