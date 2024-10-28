@@ -1,9 +1,10 @@
 package internal
 
 import (
-	"html/template"
+	"embed"
 	"os"
 	"os/exec"
+	"text/template"
 
 	"github.com/spf13/cobra"
 )
@@ -36,7 +37,7 @@ func roleCaddy() {
 	cmdRun("mkdir", "-p", "/etc/caddy")
 }
 
-func roleCaddyService() {
+func roleCaddyService(embedFS embed.FS) {
 	fo, err := os.Create("/etc/systemd/system/caddy.service")
 	cobra.CheckErr(err)
 	defer fo.Close()
@@ -67,7 +68,7 @@ func roleGeoIP2DB() error {
 	return nil
 }
 
-func roleOdooService() {
+func roleOdooService(embedFS embed.FS) {
 	fo, err := os.Create("/etc/systemd/system/odoo.service")
 	cobra.CheckErr(err)
 	defer fo.Close()
@@ -128,7 +129,7 @@ func rolePostgresqlClient(dbVersion string) {
 	aptInstall("postgresql-client-" + dbVersion)
 }
 
-func rolePreeperRepo() {
+func rolePreeperRepo(embedFS embed.FS) {
 	fo, err := os.Create("/etc/apt/sources.list.d/preeper.list")
 	cobra.CheckErr(err)
 	defer fo.Close()
@@ -146,13 +147,13 @@ func roleUpdate() {
 	cmdRun("/usr/local/bin/update")
 }
 
-func roleUpdateScript() {
+func roleUpdateScript(embedFS embed.FS) {
 	fo, err := os.Create("/usr/local/bin/update")
 	cobra.CheckErr(err)
 	defer fo.Close()
 
 	data := map[string]string{}
-	t, err := template.ParseFS(embedFS, "templates/update.sh")
+	t, err := template.ParseFS(embedFS, "templates/update")
 	cobra.CheckErr(err)
 	err = t.Execute(fo, data)
 	cobra.CheckErr(err)

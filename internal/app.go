@@ -13,10 +13,10 @@ func moduleList(modules ...string) string {
 		mm := strings.Split(mod, ",")
 		mods = append(mods, mm...)
 	}
-	return strings.Join(removeDuplicate(mods), ",")
+	return strings.Join(RemoveDuplicate(mods), ",")
 }
 
-func InstanceAppInstallUpgrade(install bool, modules ...string) error {
+func (o *ODA) InstanceAppInstallUpgrade(install bool, modules ...string) error {
 	iu := "-u"
 
 	if install {
@@ -39,7 +39,7 @@ func InstanceAppInstallUpgrade(install bool, modules ...string) error {
 	return nil
 }
 
-func Scaffold(module string) error {
+func (o *ODA) Scaffold(module string) error {
 	cmd := exec.Command("odoo/odoo-bin",
 		"scaffold", module, "/opt/odoo/addons",
 	)

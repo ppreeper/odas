@@ -1,22 +1,58 @@
 package internal
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/ppreeper/odoorpc/odoojrpc"
 )
 
-type QueryDef struct {
-	Model    string
-	Filter   string
-	Offset   int
-	Limit    int
-	Fields   string
-	Count    bool
-	Username string
-	Password string
+func (o *ODA) Query() error {
+	oc := odoojrpc.NewOdoo().
+		WithHostname("127.0.0.1").
+		WithPort(8069).
+		WithDatabase(o.OdooConf.DbName).
+		WithSchema("http").
+		WithUsername(o.Q.Username).
+		WithPassword(o.Q.Password)
+
+	err := oc.Login()
+	if err != nil {
+		return fmt.Errorf("error creating odoo rpc %w", err)
+	}
+
+	umdl := strings.Replace(o.Q.Model, "_", ".", -1)
+
+	fields := parseFields(o.Q.Fields)
+	if o.Q.Count {
+		fields = []string{"id"}
+	}
+
+	filtp, err := parseFilter(o.Q.Filter)
+	if err != nil {
+		return err
+	}
+
+	rr, err := oc.SearchRead(umdl, o.Q.Offset, o.Q.Limit, fields, filtp)
+	if err != nil {
+		fmt.Println("search read error", err)
+		return nil
+	}
+	if o.Q.Count {
+		fmt.Fprintln(os.Stderr, "records:", len(rr))
+	} else {
+		jsonStr, err := json.MarshalIndent(rr, "", "  ")
+		if err != nil {
+			fmt.Println("json marshall error")
+			// return err
+		}
+		fmt.Fprintln(os.Stderr, string(jsonStr))
+	}
+	return nil
 }
 
 func parseFields(field string) (fields []string) {
