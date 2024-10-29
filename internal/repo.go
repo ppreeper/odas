@@ -2,9 +2,13 @@ package internal
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+
+	"github.com/go-git/go-git/v5"
 )
 
 func (o *ODA) RepoUpdate() error {
@@ -22,6 +26,27 @@ func (o *ODA) RepoUpdate() error {
 		}
 	}
 	return nil
+}
+
+func GetOdooBranchVersion(path string) (branch string, version string) {
+	// Open an existing repository or create a new one
+	r, err := git.PlainOpen(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Get the current branch
+	head, err := r.Head()
+	if err != nil {
+		log.Fatal(err)
+	}
+	branch = strings.TrimPrefix(head.Name().String(), "refs/heads/")
+	branchSplit := strings.Split(branch, "-")
+	if len(branchSplit) > 1 {
+		version = branchSplit[1]
+	} else {
+		version = branch
+	}
+	return branch, version
 }
 
 // func getLastTags(r *git.Repository) (plumbing.Hash, string) {

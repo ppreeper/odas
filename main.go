@@ -189,9 +189,7 @@ func main() {
 				Action: func(cCtx *cli.Context) error {
 					domain := ""
 					modlen := cCtx.Args().Len()
-					if modlen == 0 {
-						domain = "local"
-					} else {
+					if modlen == 1 {
 						domain = cCtx.Args().First()
 					}
 					return oda.CaddyfileUpdate(domain)

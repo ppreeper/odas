@@ -7,30 +7,25 @@ import (
 	"text/template"
 
 	"github.com/charmbracelet/huh"
-	"github.com/ppreeper/str"
 )
 
 func (o *ODA) CaddyfileUpdate(domain string) error {
-	hostname, _ := os.Hostname()
+	fqdn, hostname, _ := GetFQDN()
+	if domain != "" {
+		fqdn = hostname + "." + domain
+	}
 
-	caddyfile := "{{.Hostname}}.{{.Domain}} {\n" +
-		"tls internal\n" +
-		"reverse_proxy http://{{.Hostname}}:8069\n" +
-		"reverse_proxy /websocket http://{{.Hostname}}:8072\n" +
-		"reverse_proxy /longpolling/* http://{{.Hostname}}:8072\n" +
-		"encode gzip zstd\n" +
-		"file_server\n" +
-		"log\n" +
-		"}\n"
-	tmpl, err := template.New("caddyfile").Parse(caddyfile)
+	tmpl, err := template.ParseFS(o.EmbedFS, "templates/Caddyfile")
 	if err != nil {
 		return err
 	}
 
 	data := struct {
+		FQDN     string
 		Hostname string
 		Domain   string
 	}{
+		FQDN:     fqdn,
 		Hostname: hostname,
 		Domain:   domain,
 	}
@@ -63,22 +58,22 @@ func (o *ODA) CaddyfileUpdate(domain string) error {
 }
 
 func (o *ODA) HostsUpdate(domain string) error {
-	hostname, _ := os.Hostname()
+	fqdn, hostname, _ := GetFQDN()
+	if domain != "" {
+		fqdn = hostname + "." + domain
+	}
 
-	hosts := str.LJustLen("127.0.1.1", 15) + "{{.Hostname}} {{.Hostname}}.{{.Domain}}" + "\n" +
-		str.LJustLen("127.0.0.1", 15) + "localhost" + "\n" +
-		str.LJustLen("::1", 15) + "localhost ip6-localhost ip6-loopback" + "\n" +
-		str.LJustLen("ff02::1", 15) + "ip6-allnodes" + "\n" +
-		str.LJustLen("ff02::2", 15) + "ip6-allrouters" + "\n"
-	tmpl, err := template.New("caddyfile").Parse(hosts)
+	tmpl, err := template.ParseFS(o.EmbedFS, "templates/hosts")
 	if err != nil {
 		return err
 	}
 
 	data := struct {
+		FQDN     string
 		Hostname string
 		Domain   string
 	}{
+		FQDN:     fqdn,
 		Hostname: hostname,
 		Domain:   domain,
 	}

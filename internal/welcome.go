@@ -2,6 +2,7 @@ package internal
 
 import (
 	"os"
+	"strings"
 
 	"github.com/dimiro1/banner"
 	"github.com/ppreeper/str"
@@ -14,6 +15,15 @@ func cText(color, msg string) string {
 func (o *ODA) Welcome() error {
 	tRed := "{{ .AnsiColor.BrightRed }}"
 	tMagenta := "{{ .AnsiColor.Magenta }}"
+
+	fqdn, _, _ := GetFQDN()
+
+	osName, osVersion, _ := GetOSVersionName()
+	osversionstring := strings.TrimSpace(osName + " " + osVersion)
+	var odooVersion string
+	if Exists("/opt/odoo/odoo") {
+		_, odooVersion = GetOdooBranchVersion("/opt/odoo/odoo")
+	}
 
 	exampleCommands := []struct {
 		Cmd  string
@@ -28,8 +38,8 @@ func (o *ODA) Welcome() error {
 	}
 
 	welcomeTemplate := cText(tMagenta, `{{ .Title "ODAS" "rectangles" 0 }}`) + "\n"
-	welcomeTemplate += "You are connected to your " + cText(tRed, "<production>") + " instance " + cText(tRed, "<abc123>") + "\n" +
-		"running " + cText(tRed, "<Odoo 13.0>") + " on " + cText(tRed, "<Ubuntu 20.04>") + "\n\n"
+	welcomeTemplate += "You are connected to your " + cText(tRed, "<production>") + " instance " + cText(tRed, fqdn) + "\n" +
+		"running " + cText(tRed, "Odoo "+odooVersion) + " on " + cText(tRed, osversionstring) + "\n\n"
 	welcomeTemplate += "Overview of useful commands:\n\n"
 
 	cmdLen := 0

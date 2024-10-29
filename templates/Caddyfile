@@ -1,0 +1,9 @@
+{{.FQDN}} {
+	tls internal
+	reverse_proxy http://{{.Hostname}}:8069
+	reverse_proxy /websocket http://{{.Hostname}}:8072
+	reverse_proxy /longpolling/* http://{{.Hostname}}:8072
+	encode gzip zstd
+	file_server
+	log
+}
