@@ -91,7 +91,6 @@ func Exists(filePath string) bool {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return false
 	}
-
 	return true
 }
 
@@ -113,4 +112,23 @@ func CopySymLink(source, dest string) error {
 		return fmt.Errorf("failed to read symlink: '%s', error: '%s'", source, err.Error())
 	}
 	return os.Symlink(link, dest)
+}
+
+func RemoveContents(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return fmt.Errorf("error opening directory %w", err)
+	}
+	defer d.Close()
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return fmt.Errorf("error reading directory names %w", err)
+	}
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(dir, name))
+		if err != nil {
+			return fmt.Errorf("error removing directory %w", err)
+		}
+	}
+	return nil
 }
