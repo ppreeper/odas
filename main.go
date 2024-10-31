@@ -211,6 +211,14 @@ func main() {
 				},
 			},
 			{
+				Name:     "pgcat",
+				Usage:    "pgcat setup",
+				Category: "Config Commands (requries sudo)",
+				Action: func(cCtx *cli.Context) error {
+					return oda.PGCatUpdate()
+				},
+			},
+			{
 				Name:     "config",
 				Usage:    "config management",
 				Category: "Config Commands (requries sudo)",

@@ -1,0 +1,30 @@
+[general]
+port = 6432
+admin_username = "pgcat"
+admin_password = "my-pony-likes-to-dance-tango"
+
+[pools.postgres]
+
+[pools.postgres.users.0]
+pool_size = 2
+username = "{{.DBUsername}}"
+password = "{{.DBPassword}}"
+
+[pools.postgres.shards.0]
+database = "postgres"
+servers = [
+	["{{.DBHost}}", {{.DBPort}}, "primary"],
+]
+
+[pools.{{.DBName}}]
+
+[pools.{{.DBName}}.users.0]
+pool_size = 5
+username = "{{.DBUsername}}"
+password = "{{.DBPassword}}"
+
+[pools.{{.DBName}}.shards.0]
+database = "{{.DBName}}"
+servers = [
+	["{{.DBHost}}", {{.DBPort}}, "primary"],
+]

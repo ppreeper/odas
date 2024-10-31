@@ -95,6 +95,43 @@ func (o *ODA) HostsUpdate(domain string) error {
 	return nil
 }
 
+func (o *ODA) PGCatUpdate() error {
+	tmpl, err := template.ParseFS(o.EmbedFS, "templates/pgcat.toml")
+	if err != nil {
+		return err
+	}
+
+	data := struct {
+		DBHost     string
+		DBPort     string
+		DBName     string
+		DBUsername string
+		DBPassword string
+	}{
+		DBHost:     o.OdooDatabase.Name,
+		DBPort:     "5432",
+		DBName:     o.OdooConf.DbName,
+		DBUsername: o.OdooConf.DbUser,
+		DBPassword: o.OdooConf.DbPassword,
+	}
+
+	f, err := os.Create("/etc/pgcat.toml")
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.Execute(f, data)
+	if err != nil {
+		return err
+	}
+	err = f.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (o *ODA) ConfigInit(localDomain string) error {
 	confirm := AreYouSure("initialize the system and delete all data?")
 
@@ -182,6 +219,10 @@ func (o *ODA) BaseCreate(version, localDomain string) error {
 	roleCaddy()
 
 	roleCaddyService(o.EmbedFS)
+
+	rolePGCat()
+
+	rolePGCatService(o.EmbedFS)
 
 	return nil
 }

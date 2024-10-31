@@ -118,6 +118,27 @@ func rolePaperSize() {
 	cmdRun("/usr/sbin/paperconfig", "-p", "letter")
 }
 
+func rolePGCat() {
+	url := "https://www.preeper.org/pgcat"
+	cmdRun("wget", "-qO", "/usr/local/bin/pgcat", url)
+	cmdRun("chmod", "+x", "/usr/local/bin/pgcat")
+}
+
+func rolePGCatService(embedFS embed.FS) {
+	fo, err := os.Create("/etc/systemd/system/pgcat.service")
+	cobra.CheckErr(err)
+	defer fo.Close()
+
+	data := map[string]string{}
+	t, err := template.ParseFS(embedFS, "templates/pgcat.service")
+	cobra.CheckErr(err)
+	err = t.Execute(fo, data)
+	cobra.CheckErr(err)
+
+	cmdRun("sudo", "systemctl", "daemon-reload")
+	cmdRun("sudo", "systemctl", "enable", "pgcat.service")
+}
+
 func rolePostgresqlRepo() {
 	roleUpdate()
 	aptInstall("postgresql-common", "apt-transport-https", "ca-certificates")
