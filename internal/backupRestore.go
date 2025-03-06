@@ -82,6 +82,7 @@ func (o *ODA) restoreAddonsTar(addonsFile string) error {
 	if err := RemoveContents(dest); err != nil {
 		return fmt.Errorf("remove contents failed: %w", err)
 	}
+	fmt.Println("restoring addons:", addonsFile)
 	cmd := exec.Command("tar",
 		"axf", source, "-C", dest, ".",
 	)
@@ -116,16 +117,19 @@ func (o *ODA) restoreDBTar(backupFile string, moveDB bool, neutralize bool) erro
 	if err := odb.DropDatabase(); err != nil {
 		return fmt.Errorf("could not drop postgresql database %s error: %w", o.OdooConf.DbName, err)
 	}
+	fmt.Println("dropped database " + o.OdooConf.DbName)
 
 	// create new postgresql database
 	if err := odb.CreateDatabase(); err != nil {
 		return fmt.Errorf("could not create postgresql database %s error: %w", o.OdooConf.DbName, err)
 	}
+	fmt.Println("created database " + o.OdooConf.DbName)
 
 	// restore postgresql database
 	if err := odb.RestoreDatabase(source); err != nil {
 		return fmt.Errorf("could not restore postgresql database %s error: %w", o.OdooConf.DbName, err)
 	}
+	fmt.Println("restored database " + o.OdooConf.DbName)
 
 	// restore data filestore
 	// fmt.Println("restore postgresql database")
@@ -133,6 +137,7 @@ func (o *ODA) restoreDBTar(backupFile string, moveDB bool, neutralize bool) erro
 	if err := RemoveContents(data); err != nil {
 		return fmt.Errorf("data files removal failed %w", err)
 	}
+	fmt.Println("filestore cleared")
 	filestore := filepath.Join(data, "filestore", o.OdooConf.DbName)
 	if err := os.MkdirAll(filestore, 0o755); err != nil {
 		return fmt.Errorf("filestore directory creation failed %w", err)
@@ -143,6 +148,7 @@ func (o *ODA) restoreDBTar(backupFile string, moveDB bool, neutralize bool) erro
 	if err := tarCmd.Run(); err != nil {
 		return fmt.Errorf("filestore restore failed %w", err)
 	}
+	fmt.Println("filestore restored:", o.OdooConf.DbName)
 	// fmt.Println("restored filestore " + dbname)
 
 	// if not moveDB then reset DBUUID and remove MCode
