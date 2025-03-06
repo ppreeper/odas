@@ -2,14 +2,24 @@ package internal
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 
 	"github.com/charmbracelet/huh"
 )
+
+func CmdRun(cmd string, args ...string) error {
+	roleCmd := exec.Command(cmd, args...)
+	roleCmd.Stdin = os.Stdin
+	roleCmd.Stdout = os.Stdout
+	roleCmd.Stderr = os.Stderr
+	return roleCmd.Run()
+}
 
 func GetOSVersion() string {
 	osRelease, err := os.Open("/etc/os-release")
@@ -85,6 +95,16 @@ func GetFQDN() (fqdn, hostname, domain string) {
 		domain = "local"
 	}
 	return hostname + "." + domain, hostname, domain
+}
+
+func GetInstanceType() string {
+	virtType := "unknown"
+	buf := &bytes.Buffer{}
+	roleCmd := exec.Command("systemd-detect-virt", []string{}...)
+	roleCmd.Stdout = buf
+	roleCmd.Run()
+	virtType = strings.TrimSpace(buf.String())
+	return virtType
 }
 
 func AreYouSure(prompt string) bool {

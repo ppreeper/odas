@@ -18,6 +18,8 @@ func (o *ODA) Welcome() error {
 
 	fqdn, _, _ := GetFQDN()
 
+	virtType := " " + GetInstanceType()
+
 	osName, osVersion, _ := GetOSVersionName()
 	osversionstring := strings.TrimSpace(osName + " " + osVersion)
 	var odooVersion string
@@ -37,8 +39,8 @@ func (o *ODA) Welcome() error {
 		{Cmd: "odas logs", Help: "Navigate in your instance's odoo.log file"},
 	}
 
-	welcomeTemplate := cText(tMagenta, `{{ .Title "ODAS" "rectangles" 0 }}`) + "\n"
-	welcomeTemplate += "You are connected to your " + cText(tRed, "<production>") + " instance " + cText(tRed, fqdn) + "\n" +
+	welcomeTemplate := cText(tMagenta, `{{ .Title "ODAS" "rectangles" 0 }}`) + "\n" + cText(tMagenta, o.Version) + "\n\n"
+	welcomeTemplate += "You are connected to your " + cText(tRed, "<production>") + cText(tRed, virtType) + " instance " + cText(tRed, fqdn) + "\n" +
 		"running " + cText(tRed, "Odoo "+odooVersion) + " on " + cText(tRed, osversionstring) + "\n\n"
 	welcomeTemplate += "Overview of useful commands:\n\n"
 

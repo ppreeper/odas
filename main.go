@@ -44,6 +44,7 @@ func main() {
 		Version:              oda.Version,
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
+			// --------------------------------------------------------------------------
 			// Admin User Management
 			{
 				Name:     "admin",
@@ -54,6 +55,8 @@ func main() {
 						Name:  "username",
 						Usage: "Odoo Admin username",
 						Action: func(cCtx *cli.Context) error {
+							// direct connection to the database
+							// set username of user id=2
 							return oda.AdminUsername()
 						},
 					},
@@ -61,6 +64,8 @@ func main() {
 						Name:  "password",
 						Usage: "Odoo Admin password",
 						Action: func(cCtx *cli.Context) error {
+							// direct connection to the database
+							// set password of user id=2
 							return oda.AdminPassword()
 						},
 					},
@@ -68,11 +73,14 @@ func main() {
 						Name:  "updateuser",
 						Usage: "Odoo Update User",
 						Action: func(cCtx *cli.Context) error {
+							// direct connection to the database
+							// set username and password of user
 							return oda.UpdateUser()
 						},
 					},
 				},
 			},
+			// --------------------------------------------------------------------------
 			// App Management
 			{
 				Name:     "install",
@@ -83,6 +91,7 @@ func main() {
 					if modlen == 0 {
 						return fmt.Errorf("no modules specified")
 					}
+					// cmdRun := exec.Command("odoo-bin", "shell", "-c", "/opt/odoo/conf/odoo.conf" install module(s))
 					return oda.InstanceAppInstallUpgrade(true, cCtx.Args().Slice()...)
 				},
 			},
@@ -95,6 +104,7 @@ func main() {
 					if modlen == 0 {
 						return fmt.Errorf("no modules specified")
 					}
+					// cmdRun := exec.Command("odoo-bin", "shell", "-c", "/opt/odoo/conf/odoo.conf" update module(s))
 					return oda.InstanceAppInstallUpgrade(false, cCtx.Args().Slice()...)
 				},
 			},
@@ -107,15 +117,19 @@ func main() {
 					if modlen == 0 {
 						return fmt.Errorf("no modules specified")
 					}
+					// cmdRun := exec.Command("odoo-bin", "shell", "-c", "/opt/odoo/conf/odoo.conf" scaffold module)
 					return oda.Scaffold(cCtx.Args().First())
 				},
 			},
+			// --------------------------------------------------------------------------
 			// Backup Restore
 			{
 				Name:     "backup",
 				Usage:    "Backup database filestore and addons",
 				Category: "Backup Management",
 				Action: func(cCtx *cli.Context) error {
+					// direct connection to the database
+					// backup database, filestore and addons
 					return oda.Backup()
 				},
 			},
@@ -144,6 +158,7 @@ func main() {
 					if cCtx.Bool("move") && cCtx.Bool("neutralize") {
 						return fmt.Errorf("cannot move and neutralize at the same time")
 					}
+					// direct connection to the database
 					return oda.Restore(
 						cCtx.Bool("any"),
 						cCtx.Bool("move"),
@@ -163,6 +178,7 @@ func main() {
 					},
 				},
 				Action: func(cCtx *cli.Context) error {
+					// directly look at the files in backup directory
 					return oda.Trim(cCtx.Int("limit"), false)
 				},
 			},
@@ -178,9 +194,11 @@ func main() {
 					},
 				},
 				Action: func(cCtx *cli.Context) error {
+					// directly look at the files in backup directory
 					return oda.Trim(cCtx.Int("limit"), true)
 				},
 			},
+			// --------------------------------------------------------------------------
 			// Config Commands (requries sudo)
 			{
 				Name:     "caddy",
@@ -192,6 +210,11 @@ func main() {
 					if modlen == 1 {
 						domain = cCtx.Args().First()
 					}
+					// create if not exists directory /etc/caddy/
+					// create file /etc/caddy/Caddyfile
+					// insert hostname.domain into Caddyfile
+					// set tls, if tls_key is present and not blank then use cloudflare
+					// format Caddyfile
 					return oda.CaddyfileUpdate(domain)
 				},
 			},
@@ -207,6 +230,8 @@ func main() {
 					} else {
 						domain = cCtx.Args().First()
 					}
+					// update if not exists directory /etc/hosts
+					// insert hostname.domain into /etc/hosts
 					return oda.HostsUpdate(domain)
 				},
 			},
@@ -215,6 +240,9 @@ func main() {
 				Usage:    "pgcat setup",
 				Category: "Config Commands (requries sudo)",
 				Action: func(cCtx *cli.Context) error {
+					// create if not exists directory /etc/pgcat.toml
+					// uses db_user, db_password, db_host, db_port, db_name
+
 					return oda.PGCatUpdate()
 				},
 			},
@@ -230,6 +258,13 @@ func main() {
 					} else {
 						domain = cCtx.Args().First()
 					}
+					// create if not exists directory /etc/oda/
+					// initialize config /etc/oda/odas.yaml
+					// set domain, db_user, db_password, db_host, db_port, db_name
+					// set odoo_user, odoo_password, odoo_port
+					// set odoo_branch, odoo_version
+					// set odoo_addons_path, odoo_data_dir
+					// maybe have a small tui to set these values
 					return oda.ConfigInit(domain)
 				},
 			},
@@ -239,6 +274,8 @@ func main() {
 				Usage:    "Access the instance database",
 				Category: "Database Management",
 				Action: func(cCtx *cli.Context) error {
+					// direct connection to the database
+					// using cmdRun psql to connect to the database
 					return oda.PSQL()
 				},
 			},
@@ -303,6 +340,8 @@ func main() {
 						return fmt.Errorf("no model specified")
 					}
 					oda.Q.Model = cCtx.Args().First()
+					// direct connection to the database
+					// uses odoorpc to query the database
 					return oda.Query()
 				},
 			},
@@ -339,12 +378,16 @@ func main() {
 					return oda.Logs()
 				},
 			},
-			// // Repository Management
+			// Repository Management
 			{
 				Name:     "repo",
 				Usage:    "odoo repository management",
 				Category: "Repository Management",
 				Action: func(cCtx *cli.Context) error {
+					// does a git pull on the
+					// "odoo", "enterprise", "design-themes", "industry"
+					// repositories
+					// stored in /opt/odoo
 					return oda.RepoUpdate()
 				},
 			},
@@ -354,6 +397,7 @@ func main() {
 				Usage:    "Welcome message",
 				Category: "Utility Commands",
 				Action: func(cCtx *cli.Context) error {
+					// looks at the system and returns a welcome message
 					return oda.Welcome()
 				},
 			},

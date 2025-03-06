@@ -3,7 +3,6 @@ package internal
 import (
 	"embed"
 	"os"
-	"os/exec"
 	"text/template"
 
 	"github.com/spf13/cobra"
@@ -12,29 +11,21 @@ import (
 func aptInstall(packages ...string) {
 	args := []string{"install", "-y", "--no-install-recommends"}
 	args = append(args, packages...)
-	cmdRun("apt-get", args...)
+	CmdRun("apt-get", args...)
 }
 
 func npmInstall(packages ...string) {
 	args := []string{"install", "-g"}
 	args = append(args, packages...)
-	cmdRun("npm", args...)
-}
-
-func cmdRun(cmd string, args ...string) {
-	roleCmd := exec.Command(cmd, args...)
-	roleCmd.Stdin = os.Stdin
-	roleCmd.Stdout = os.Stdout
-	roleCmd.Stderr = os.Stderr
-	cobra.CheckErr(roleCmd.Run())
+	CmdRun("npm", args...)
 }
 
 func roleCaddy() {
 	url := "https://caddyserver.com/api/download?os=linux&arch=amd64&p=github.com%2Fcaddy-dns%2Fcloudflare"
 
-	cmdRun("wget", "-qO", "/usr/local/bin/caddy", url)
-	cmdRun("chmod", "+x", "/usr/local/bin/caddy")
-	cmdRun("mkdir", "-p", "/etc/caddy")
+	CmdRun("wget", "-qO", "/usr/local/bin/caddy", url)
+	CmdRun("chmod", "+x", "/usr/local/bin/caddy")
+	CmdRun("mkdir", "-p", "/etc/caddy")
 }
 
 func roleCaddyService(embedFS embed.FS) {
@@ -48,9 +39,9 @@ func roleCaddyService(embedFS embed.FS) {
 	err = t.Execute(fo, data)
 	cobra.CheckErr(err)
 
-	cmdRun("sudo", "systemctl", "daemon-reload")
-	cmdRun("sudo", "systemctl", "enable", "caddy.service")
-	cmdRun("sudo", "mkdir", "-p", "/etc/caddy")
+	CmdRun("sudo", "systemctl", "daemon-reload")
+	CmdRun("sudo", "systemctl", "enable", "caddy.service")
+	CmdRun("sudo", "mkdir", "-p", "/etc/caddy")
 }
 
 func roleGeoIP2DB() error {
@@ -62,7 +53,7 @@ func roleGeoIP2DB() error {
 	}
 
 	for _, geo := range geolite {
-		cmdRun("wget", "-qO", "/usr/share/GeoIP/"+geo[0], geo[1])
+		CmdRun("wget", "-qO", "/usr/share/GeoIP/"+geo[0], geo[1])
 	}
 
 	return nil
@@ -79,14 +70,14 @@ func roleOdooService(embedFS embed.FS) {
 	err = t.Execute(fo, data)
 	cobra.CheckErr(err)
 
-	cmdRun("sudo", "systemctl", "daemon-reload")
-	cmdRun("sudo", "systemctl", "enable", "odoo.service")
+	CmdRun("sudo", "systemctl", "daemon-reload")
+	CmdRun("sudo", "systemctl", "enable", "odoo.service")
 }
 
 func roleOdooUser() {
-	cmdRun("sudo", "groupadd", "-f", "-g", "1001", "odoo")
-	cmdRun("sudo", "useradd", "-ms", "/bin/bash", "-g", "1001", "-u", "1001", "odoo")
-	cmdRun("sudo", "usermod", "-aG", "sudo", "odoo")
+	CmdRun("sudo", "groupadd", "-f", "-g", "1001", "odoo")
+	CmdRun("sudo", "useradd", "-ms", "/bin/bash", "-g", "1001", "-u", "1001", "odoo")
+	CmdRun("sudo", "usermod", "-aG", "sudo", "odoo")
 
 	fo, err := os.Create("/etc/sudoers.d/odoo")
 	cobra.CheckErr(err)
@@ -98,30 +89,30 @@ func roleOdooUser() {
 	err = t.Execute(fo, data)
 	cobra.CheckErr(err)
 
-	cmdRun("sudo", "chown", "root:root", "/etc/sudoers.d/odoo")
+	CmdRun("sudo", "chown", "root:root", "/etc/sudoers.d/odoo")
 
 	// SSH key
-	cmdRun("sudo", "mkdir", "/home/odoo/.ssh")
-	cmdRun("sudo", "chown", "-R", "odoo:odoo", "/home/odoo/.ssh")
+	CmdRun("sudo", "mkdir", "/home/odoo/.ssh")
+	CmdRun("sudo", "chown", "-R", "odoo:odoo", "/home/odoo/.ssh")
 }
 
 func roleOdooDirs() {
 	dirs := []string{"addons", "backups", "conf", "data", "odoo", "enterprise", "design-themes", "industry"}
 
 	for _, dir := range dirs {
-		cmdRun("mkdir", "-p", "/opt/odoo/"+dir)
+		CmdRun("mkdir", "-p", "/opt/odoo/"+dir)
 	}
-	cmdRun("sudo", "chown", "-R", "odoo:odoo", "/opt/odoo")
+	CmdRun("sudo", "chown", "-R", "odoo:odoo", "/opt/odoo")
 }
 
 func rolePaperSize() {
-	cmdRun("/usr/sbin/paperconfig", "-p", "letter")
+	CmdRun("/usr/sbin/paperconfig", "-p", "letter")
 }
 
 func rolePGCat() {
 	url := "https://www.preeper.org/pgcat"
-	cmdRun("wget", "-qO", "/usr/local/bin/pgcat", url)
-	cmdRun("chmod", "+x", "/usr/local/bin/pgcat")
+	CmdRun("wget", "-qO", "/usr/local/bin/pgcat", url)
+	CmdRun("chmod", "+x", "/usr/local/bin/pgcat")
 }
 
 func rolePGCatService(embedFS embed.FS) {
@@ -135,14 +126,14 @@ func rolePGCatService(embedFS embed.FS) {
 	err = t.Execute(fo, data)
 	cobra.CheckErr(err)
 
-	cmdRun("sudo", "systemctl", "daemon-reload")
-	cmdRun("sudo", "systemctl", "enable", "pgcat.service")
+	CmdRun("sudo", "systemctl", "daemon-reload")
+	CmdRun("sudo", "systemctl", "enable", "pgcat.service")
 }
 
 func rolePostgresqlRepo() {
 	roleUpdate()
 	aptInstall("postgresql-common", "apt-transport-https", "ca-certificates")
-	cmdRun("/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh", "-y")
+	CmdRun("/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh", "-y")
 	roleUpdate()
 }
 
@@ -165,7 +156,7 @@ func rolePreeperRepo(embedFS embed.FS) {
 }
 
 func roleUpdate() {
-	cmdRun("/usr/local/bin/update")
+	CmdRun("/usr/local/bin/update")
 }
 
 func roleUpdateScript(embedFS embed.FS) {
@@ -186,7 +177,7 @@ func roleWkhtmltopdf() {
 	// wkhtmltopdf
 	url := "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_amd64.deb"
 
-	cmdRun("wget", "-qO", "wkhtmltox.deb", url)
+	CmdRun("wget", "-qO", "wkhtmltox.deb", url)
 	aptInstall("./wkhtmltox.deb")
-	cmdRun("rm", "-rf", "wkhtmltox.deb")
+	CmdRun("rm", "-rf", "wkhtmltox.deb")
 }

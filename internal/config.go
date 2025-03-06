@@ -96,6 +96,9 @@ func (o *ODA) HostsUpdate(domain string) error {
 }
 
 func (o *ODA) PGCatUpdate() error {
+	rolePGCat()
+	rolePGCatService(o.EmbedFS)
+
 	tmpl, err := template.ParseFS(o.EmbedFS, "templates/pgcat.toml")
 	if err != nil {
 		return err
@@ -151,15 +154,59 @@ func (o *ODA) ConfigInit(localDomain string) error {
 	for _, version := range odooVersions {
 		versionOptions = append(versionOptions, huh.NewOption(version, version))
 	}
+	dbVersions := []huh.Option[string]{}
+	for _, version := range []string{"17", "16", "15"} {
+		dbVersions = append(dbVersions, huh.NewOption(version, version))
+	}
+
 	var version string
 	var create bool
+	var hostname string
+	production := false
+	container := true
+	var databaseVersion string
+	cluster := false
+	var hostPort string
+
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Odoo Version").
 				Options(versionOptions...).
 				Value(&version),
-
+			// Ask for hostname (default current hostname)
+			huh.NewInput().
+				Title("Please enter hostname:").
+				Prompt(">").
+				Value(&hostname),
+			// Ask for domain (default local)
+			huh.NewInput().
+				Title("Please enter domainname:").
+				Prompt(">").
+				Value(&localDomain),
+			// Is Production (default false)
+			huh.NewConfirm().
+				Title("Is Production?").
+				Value(&production),
+			// Is Container (default true)
+			huh.NewConfirm().
+				Title("Is Container?").
+				Value(&container),
+			// Database version (default 17)
+			huh.NewSelect[string]().
+				Title("PostgreSQL Version").
+				Options(dbVersions...).
+				Value(&databaseVersion),
+			// Database cluster (default false)
+			huh.NewConfirm().
+				Title("Is Database HA Cluster?").
+				Value(&cluster),
+			// Database host and port (default localhost:5432)
+			huh.NewInput().
+				Title("Please enter database host:port").
+				Prompt(">").
+				Value(&hostPort),
+			// if cluster is true, ask for additional hosts
 			huh.NewConfirm().
 				Title("Start Build?").
 				Value(&create),
@@ -172,6 +219,7 @@ func (o *ODA) ConfigInit(localDomain string) error {
 		return fmt.Errorf("system initialization aborted")
 	}
 
+	fmt.Println("Creating base image for Odoo version", version, "on", localDomain)
 	return o.BaseCreate(version, localDomain)
 }
 

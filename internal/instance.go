@@ -23,29 +23,29 @@ func odooService(action string) error {
 }
 
 func (o *ODA) OdooStart() error {
-	return odooService("start")
+	return CmdRun("sudo", "systemctl", "start", "odoo.service")
 }
 
 func (o *ODA) OdooStop() error {
-	return odooService("stop")
+	return CmdRun("sudo", "systemctl", "stop", "odoo.service")
 }
 
 func (o *ODA) OdooRestart() error {
-	return odooService("restart")
+	return CmdRun("sudo", "systemctl", "restart", "odoo.service")
 }
 
 func (o *ODA) Logs() error {
-	command := exec.Command("sudo",
-		"journalctl",
-		"-u",
-		"odoo.service",
-		"-f",
-	)
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	if err := command.Run(); err != nil {
-		return fmt.Errorf("error getting logs %w", err)
-	}
-	return nil
+	// command := exec.Command("sudo",
+	// 	"journalctl",
+	// 	"-u",
+	// 	"odoo.service",
+	// 	"-f",
+	// )
+	// command.Stdin = os.Stdin
+	// command.Stdout = os.Stdout
+	// command.Stderr = os.Stderr
+	// if err := command.Run(); err != nil {
+	// 	return fmt.Errorf("error getting logs %w", err)
+	// }
+	return CmdRun("sudo", "journalctl", "-u", "odoo.service", "-f")
 }
